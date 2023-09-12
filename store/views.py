@@ -7,18 +7,19 @@ from .models import Product, Collection
 from .serializers import ProductSerializer, CollectionSerializer
 from django.db.models import Count
 from rest_framework.views import APIView
+from rest_framework.generics import ListCreateAPIView
 
-class ProductList(APIView):
-    def get(self, request):
-        product_set = Product.objects.select_related('collection').all()[:10]
-        serializer = ProductSerializer(product_set, many=True, context={'request': request})
-        return Response(serializer.data)
+class ProductList(ListCreateAPIView):
+    queryset = Product.objects.select_related('collection').all()[:10]
+    # def get_queryset(self):
+    #     return Product.objects.select_related('collection').all()[:10]
     
-    def post(self, request):
-        serializer = ProductSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    serializer_class = ProductSerializer
+    # def get_serializer_class(self):
+    #     return ProductSerializer
+    
+    def get_serializer_context(self):
+        return {'request': self.request }
 
 class ProductDetail(APIView):
     def get(self, request, id):
@@ -42,17 +43,11 @@ class ProductDetail(APIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-@api_view(['GET', 'POST'])
-def collection_list(request):
-    if request.method == 'GET':
-        collection_set = Collection.objects.annotate(products_count=Count('product')).all()
-        serializer = CollectionSerializer(collection_set, many=True)
-        return Response(serializer.data)
-    elif request.method == 'POST':
-        serializer = CollectionSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data)
+class CollectionList(ListCreateAPIView):
+    queryset = Collection.objects.annotate(products_count=Count('product')).all()
+    serializer_class = CollectionSerializer
+    def get_serializer_context(self):
+        return {'request': self.request }
 
     
 @api_view(['GET', 'PUT', 'DELETE'])
