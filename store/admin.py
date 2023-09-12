@@ -1,9 +1,15 @@
-from django.contrib import admin
 from . import models
+from django.contrib import admin
 from django.db.models.aggregates import Count
 from django.utils.html import format_html
 from django.urls import reverse 
 from django.utils.http import urlencode
+from django.contrib.contenttypes.admin import GenericTabularInline
+from tags.models import TaggedItem
+
+class TagInline(GenericTabularInline):
+    model = TaggedItem
+    autocomplete_fields = ['tag']
 
 class InventoryFilter(admin.SimpleListFilter):
     title = 'inventory'
@@ -29,6 +35,7 @@ class ProductAdmin(admin.ModelAdmin):
         'slug': ['title']
     }
     autocomplete_fields = ['collection']
+    inlines = [TagInline]
     list_display = ['title', 'unit_price', 'inventory', 'inventory_status', 'collection_title']
     list_editable = ['unit_price']
     list_per_page = 25
