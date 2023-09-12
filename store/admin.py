@@ -54,9 +54,12 @@ class ProductAdmin(admin.ModelAdmin):
 class CustomerAdmin(admin.ModelAdmin):
     list_display = ['first_name', 'last_name', 'membership']
     list_editable = ['membership']
+    list_select_related = ['user']
     list_per_page = 25
     list_filter = ['membership']
-    search_fields = ['first_name', 'first_name__istartswith', 'last_name__istartswith']
+    search_fields = ['user__first_name__istartswith', 'user__last_name__istartswith']
+    ordering = ['user__first_name', 'user__last_name']
+    autocomplete_fields = ['user']
 
 class OrderItemInline(admin.TabularInline):
     autocomplete_fields = ['product']
