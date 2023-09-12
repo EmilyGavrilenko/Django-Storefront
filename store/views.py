@@ -10,13 +10,14 @@ from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIV
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Product, Collection, OrderItem, Review
 from .serializers import ProductSerializer, CollectionSerializer, ReviewSerializer
+from .filters import ProductFilter
 
 class ProductViewSet(ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     lookup_field = 'id'
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['collection_id', 'inventory']
+    filterset_class = ProductFilter
 
     def get_serializer_context(self):
         return {'request': self.request }
