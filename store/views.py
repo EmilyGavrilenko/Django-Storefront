@@ -11,9 +11,15 @@ from rest_framework.views import APIView
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 
 class ProductViewSet(ModelViewSet):
-    queryset = Product.objects.all()
     serializer_class = ProductSerializer
     lookup_field = 'id'
+
+    def get_queryset(self):
+        queryset = Product.objects.all()
+        collection_id = self.request.query_params.get('collection_id', None)
+        if collection_id is not None:
+            queryset = queryset.filter(collection_id=collection_id)
+        return queryset
 
     def get_serializer_context(self):
         return {'request': self.request }
