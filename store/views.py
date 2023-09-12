@@ -55,6 +55,5 @@ class ReviewViewSet(ModelViewSet):
         return {'product_id': self.kwargs['product_id'] }
     
 class CartViewSet(CreateModelMixin, RetrieveModelMixin, GenericViewSet): # Only supports the create operation
-    queryset = Cart.objects.all()
     queryset = Cart.objects.prefetch_related('items__product').all()
     serializer_class = CartSerializer 

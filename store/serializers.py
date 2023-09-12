@@ -33,6 +33,16 @@ class ProductSerializer(serializers.ModelSerializer):
     def calculate_tax(self, product: Product):
         return product.unit_price * Decimal(1.1)    
     
+# Simple Product class for the shopping cart    
+class SimpleProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = ['id', 'title', 'unit_price', 'price_with_tax']
+    price_with_tax = serializers.SerializerMethodField(method_name='calculate_tax')
+
+    def calculate_tax(self, product: Product):
+        return product.unit_price * Decimal(1.1)    
+    
 class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
@@ -47,10 +57,10 @@ class CartItemSerializer(serializers.ModelSerializer):
         model = CartItem
         fields = ['id', 'quantity', 'product', 'total_price']
 
-    product = ProductSerializer()
-    total_price = serializers.SerializerMethodField(method_name='calculate_total_price')
+    product = SimpleProductSerializer()
+    total_price = serializers.SerializerMethodField(method_name='get_total_price')
 
-    def calculate_total_price(self, item: CartItem):
+    def get_total_price(self, item: CartItem):
         return item.product.unit_price * item.quantity
     
 class CartSerializer(serializers.ModelSerializer):
@@ -61,9 +71,8 @@ class CartSerializer(serializers.ModelSerializer):
         model = Cart
         fields = ['id', 'cart_items', 'total_price']
 
-    total_price = serializers.SerializerMethodField(method_name='calculate_total_cart_price')
+    total_price = serializers.SerializerMethodField(method_name='get_total_price')
 
-    def calculate_total_cart_price(self, cart: Cart):
+    def get_total_price(self, cart: Cart):
         item_subtotals = [item.product.unit_price * item.quantity for item in cart.items.all()]
-        total = sum(item_subtotals)
-        return total
+        return sum(item_subtotals)
