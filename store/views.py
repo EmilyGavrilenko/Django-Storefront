@@ -107,5 +107,14 @@ class CustomerViewSet(ModelViewSet):
         return Response("OK")
 
 class OrderViewSet(ModelViewSet):
-    queryset = Order.objects.prefetch_related('items__product').all()
     serializer_class = OrderSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+
+        if user.is_staff:
+            return Order.objects.prefetch_related('items__product').all()
+        
+        customer = Customer.objects.only('id').get(user_id=user.id)
+        return Order.objects.filter(customer_id=customer.id)
