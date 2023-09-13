@@ -91,7 +91,7 @@ class Order(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.PROTECT)
 
     def __str__(self) -> str:
-        return self.id 
+        return str(self.id)
 
     class Meta: 
         ordering = ['-placed_at']
