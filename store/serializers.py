@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Product, Collection, Review, Cart, CartItem, Customer
+from .models import Product, Collection, Review, Cart, CartItem, Customer, Order, OrderItem
 from decimal import Decimal
 from django.forms.models import model_to_dict
 
@@ -37,8 +37,8 @@ class ProductSerializer(serializers.ModelSerializer):
 class SimpleProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = ['id', 'title', 'unit_price', 'price_with_tax']
-    price_with_tax = serializers.SerializerMethodField(method_name='calculate_tax')
+        fields = ['id', 'title', 'unit_price']
+    # price_with_tax = serializers.SerializerMethodField(method_name='calculate_tax')
 
     def calculate_tax(self, product: Product):
         return product.unit_price * Decimal(1.1)    
@@ -117,3 +117,19 @@ class CustomerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
         fields = ['id', 'user_id', 'phone', 'birth_date', 'membership']
+
+class OrderItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderItem
+        fields = ['id', 'quantity', 'product', 'unit_price']
+
+    product = SimpleProductSerializer()
+
+class OrderSerializer(serializers.ModelSerializer):
+    # customer = serializers.IntegerField(read_only=True)
+    placed_at = serializers.DateTimeField(read_only=True)
+    items = OrderItemSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Order
+        fields = ['id', 'customer', 'placed_at', 'payment_status', 'items']

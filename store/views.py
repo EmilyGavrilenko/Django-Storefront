@@ -8,10 +8,10 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import Product, Collection, OrderItem, Review, Cart, CartItem, Customer
+from .models import Product, Collection, OrderItem, Review, Cart, CartItem, Customer, Order
 from .serializers import ProductSerializer, CollectionSerializer, ReviewSerializer, \
     CartSerializer, CartItemSerializer, AddCartItemSerializer, UpdateCartItemSerializer, \
-    CustomerSerializer
+    CustomerSerializer, OrderSerializer
 from .filters import ProductFilter
 from .pagination import DefaultPagination
 from .permissions import IsAdminOrReadOnly, FullDjangoModelPermissions, ViewCustomerHistoryPermission
@@ -106,3 +106,6 @@ class CustomerViewSet(ModelViewSet):
     def history(self, request, pk):
         return Response("OK")
 
+class OrderViewSet(ModelViewSet):
+    queryset = Order.objects.prefetch_related('items__product').all()
+    serializer_class = OrderSerializer
