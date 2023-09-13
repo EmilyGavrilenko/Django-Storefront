@@ -11,7 +11,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .models import Product, Collection, OrderItem, Review, Cart, CartItem, Customer, Order
 from .serializers import ProductSerializer, CollectionSerializer, ReviewSerializer, \
     CartSerializer, CartItemSerializer, AddCartItemSerializer, UpdateCartItemSerializer, \
-    CustomerSerializer, OrderSerializer, CreateOrderSerializer
+    CustomerSerializer, OrderSerializer, CreateOrderSerializer, UpdateOrderSerializer
 from .filters import ProductFilter
 from .pagination import DefaultPagination
 from .permissions import IsAdminOrReadOnly, FullDjangoModelPermissions, ViewCustomerHistoryPermission
@@ -127,6 +127,8 @@ class OrderViewSet(ModelViewSet):
     def get_serializer_class(self):
         if (self.request.method == 'POST'):
             return CreateOrderSerializer
+        if (self.request.method == 'PATCH'):
+            return UpdateOrderSerializer
         return OrderSerializer
 
     def get_queryset(self):
